@@ -133,11 +133,12 @@ class AmazonAPI:
         time.sleep(2)  # wait to load the pg
         result_list = self.driver.find_element_by_class_name('s-result-list')
 
-        links = []
+        links = [1000]
         try:
-            results = result_list[0].find_element_by_xpath(
-              "//div/span/div/div/div[2]/div[2]/div/div[1]/div/div/div[1]/h2/a")
-            links =[link.get_attribute('href') for link in results]
+            results = result_list[0].find_elements_by_xpath(
+              "//div[1]/div[1]/div/span[3]/div[2]/div[2]/div/span/div/div/div[2]/div[2]/div/div/div[1]/h2/a")
+            links = [links.get_attribute("href") for link in results]
+
             return links
         except Exception as e:
             print("Didn't get any products....")
