@@ -1,4 +1,7 @@
 import time
+from lib2to3.pgen2 import driver
+
+from selenium.common.exceptions import NoSuchElementException
 
 from  main import (
 get_web_driver_options,
@@ -45,7 +48,7 @@ class AmazonAPI:
         self.driver.quit()
         return products
 
-    def get_products_info(self, links ):      #this 3 fxs r for clearing the link's url from extra info
+    def get_products_info(self, links):      #this 3 fxs r for clearing the link's url from extra info
         asins = self.get_asins(links)
         products = []
         for asin in asins:
@@ -56,8 +59,9 @@ class AmazonAPI:
 
     def get_single_product_info(self,asin):
         print(f"Product ID: {asin} - getting data...")
-        product_sort_url = self.shorten_url(asin)
-        self.driver.get(f'{product_sort_url}?language=en_GB')
+        #product_sort_url = self.shorten_url(asin)
+        product_sort_url = "https://www.amazon.de"
+        driver.get(f'{product_sort_url}?language=en_GB')
         time.sleep(2)
         title = self.get_title()   #v'll be getting this 3 things
         seller = self.get_seller()
@@ -116,7 +120,7 @@ class AmazonAPI:
         return self.base_url + 'dp/' + asin  #this will remove the product name
 
     def get_asins(self, links):
-        return [self.get_asin(links) for link in links]
+        return [self.get_asin(link) for link in links]
 
     def get_asin(self,product_link):
         return product_link[product_link.find('/dp/') + 4:product_link.find('/ref')]
@@ -133,12 +137,11 @@ class AmazonAPI:
         time.sleep(2)  # wait to load the pg
         result_list = self.driver.find_element_by_class_name('s-result-list')
 
-        links = [1000]
+        links = []
         try:
-            results = result_list[0].find_elements_by_xpath(
-              "//div[1]/div[1]/div/span[3]/div[2]/div[2]/div/span/div/div/div[2]/div[2]/div/div/div[1]/h2/a")
-            links = [links.get_attribute("href") for link in results]
-
+            results = result_list.find_elements_by_xpath(
+              "//div[1]/div[2]/div[1]/div[1]/div/span[3]/div[2]/div[2]/div/span/div/div/div[2]/div[2]/div/div/div[1]/h2/a")
+            links =[link.get_attribute(" href=") for link in results]
             return links
         except Exception as e:
             print("Didn't get any products....")
